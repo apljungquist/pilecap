@@ -1,11 +1,15 @@
 /.coverage.*
 /.idea/
+/.mypy_cache/
 /.tox/
 /build/
 /check_*
 /dist/
 /reports/
-/src/padstone/_version.py
+/src/pilecap/_version.py
 /src/*.egg-info/
 /venv/
 __pycache__/
+
+# tmp
+/requirements/*.txt

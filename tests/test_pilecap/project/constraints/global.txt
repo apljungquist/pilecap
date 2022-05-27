@@ -1,0 +1,2 @@
+# Not really needed for this project, but we go out of our way to eat our own dogfood here
+canaria-domestica-red==1.0.1

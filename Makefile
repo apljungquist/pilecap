@@ -66,14 +66,14 @@ check_docs: ## Check that documentation can be built
 
 # No coverage here to avoid race conditions?
 check_tests: ## Check that unit tests pass
-	pytest --durations=10 --doctest-modules src/padstone tests/
+	pytest --durations=10 --doctest-modules src/pilecap tests/
 	touch $@
 
 check_types: ## ...
 	mypy \
 		--cobertura-xml-report=reports/type_coverage/ \
 		--html-report=reports/type_coverage/html/ \
-		--package padstone
+		--package pilecap
 	touch $@
 
 fix_format: ## ...
@@ -87,8 +87,26 @@ fix_format: ## ...
 # * Must not have any prerequisites that are verbs
 # * Ordered first by specificity, second by name
 
-constraints.txt: $(wildcard requirements/*.txt)
-	pip-compile --allow-unsafe --strip-extras --output-file $@ $^ > /dev/null
+build/requirements/build.txt: pyproject.toml
+	mkdir -p $(@D)
+	pilecap build_requirements $< > $@
+
+build/requirements/global.in: constraints/global.txt build/requirements/run.txt
+	mkdir -p $(@D)
+	if [ -f $@ ]; then rm $@; fi
+	echo "-c ../../constraints/global.txt" >> $@
+	echo "-r run.txt" >> $@
+
+build/requirements/global.txt: build/requirements/global.in
+	mkdir -p $(@D)
+	pip-compile --allow-unsafe --quiet --output-file $@ $<
+
+build/requirements/run.txt: pyproject.toml
+	mkdir -p $(@D)
+	pilecap run_requirements $< > $@
+
+constraints.txt: build/requirements/build.txt build/requirements/global.txt $(wildcard requirements/*.txt)
+	pip-compile --allow-unsafe --strip-extras --quiet --output-file $@ $^
 
 dist/_envoy:
 	$(CLEAN_DIR_TARGET)

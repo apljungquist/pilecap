@@ -1,21 +1,12 @@
-# Padstone
+# Pile Cap
 
-_A stable foundation for reproducible tests_
-
-
-## Goals
-<!-- TODO: Think about what this project should accomplish -->
+_A stable foundation for reproducible builds_
 
 
-## How to run checks locally
-Make sure the python versions listed in `.python-version` are installed.
-If these are not available on your OS distribution consider installing [pyenv](https://github.com/pyenv/pyenv).
+## Value proposition
+This project aims to be both a map and a vehicle to reproducible builds.
+It adopts the progressive disclosure pattern to accommodate both novices and veterans.
+For the novice _porcelain_ commands can be used to set up a simple workflow (TODO).
+For the veteran _plumbing_ commands can be combined with other tools such as `pip` and `pip-tools` to create more complicated workflows.
 
-Now we can create our development environment, install dependencies and run all checks like
-
-```bash
-source ./init_env.sh
-# Unlike CI this installs the current package as editable
-pip install -r requirements.txt
-make check_all
-```
+In practice this currently means patching a few shortcomings in `pip-tools` while trying to upstream theses changes. 

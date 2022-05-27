@@ -1,9 +1,9 @@
 [run]
 branch = True
-source = padstone,tests
+source = pilecap,tests
 
 [paths]
 source =
-    src/padstone
-    .tox/*/lib/python*/site-packages/padstone
+    src/pilecap
+    .tox/*/lib/python*/site-packages/pilecap
 

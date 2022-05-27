@@ -8,12 +8,20 @@ build-backend = "setuptools.build_meta"
 
 
 [tool.isort]
-profile = "black"
+known_third_party = ["build"]
 line_length = 88
+profile = "black"
 
 
 [tool.mypy]
 disallow_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = [
+    'fire',
+    'pep517',
+]
+ignore_missing_imports = true
 
 
 [tool.pylint.MASTER]
@@ -22,6 +30,9 @@ ignore = ["_version.py"]
 
 [tool.pylint.format]
 max-line-length = 88
+
+[tool.pylint.import]
+known-third-party = ["build"]
 
 [tool.pylint.messages_control]
 disable = [
@@ -33,7 +44,7 @@ bad-names=[]
 
 
 [tool.setuptools_scm]
-write_to = 'src/padstone/_version.py'
+write_to = 'src/pilecap/_version.py'
 
 
 [tool.tox-constraints]

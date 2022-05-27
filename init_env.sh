@@ -12,7 +12,7 @@ export PIP_CONSTRAINT
 
 if [ ! -d "venv" ]; then
   echo "Creating venv"
-  python -m venv --prompt "padstone" venv
+  python -m venv --prompt "pilecap" venv
   . "venv/bin/activate"
   pip install pip setuptools
 else
