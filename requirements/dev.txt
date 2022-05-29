@@ -1,0 +1,13 @@
+# Development dependencies
+black
+build
+coverage
+flake8
+isort
+lxml
+mypy[reports]
+pip
+pylint
+pytest >=6.2.5
+tox
+twine

@@ -1,1 +1,0 @@
-# This project does not share any version locks with other projects

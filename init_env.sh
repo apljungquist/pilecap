@@ -7,9 +7,6 @@
 
 PROJECT_PATH="$(pwd)"
 
-PIP_CONSTRAINT=${PROJECT_PATH}/constraints.txt
-export PIP_CONSTRAINT
-
 if [ ! -d "venv" ]; then
   echo "Creating venv"
   python -m venv --prompt "pilecap" venv

@@ -87,26 +87,8 @@ fix_format: ## ...
 # * Must not have any prerequisites that are verbs
 # * Ordered first by specificity, second by name
 
-build/requirements/build.txt: pyproject.toml
-	mkdir -p $(@D)
-	pilecap build_requirements $< > $@
-
-build/requirements/global.in: constraints/global.txt build/requirements/run.txt
-	mkdir -p $(@D)
-	if [ -f $@ ]; then rm $@; fi
-	echo "-c ../../constraints/global.txt" >> $@
-	echo "-r run.txt" >> $@
-
-build/requirements/global.txt: build/requirements/global.in
-	mkdir -p $(@D)
-	pip-compile --allow-unsafe --quiet --output-file $@ $<
-
-build/requirements/run.txt: pyproject.toml
-	mkdir -p $(@D)
-	pilecap run_requirements $< > $@
-
-constraints.txt: build/requirements/build.txt build/requirements/global.txt $(wildcard requirements/*.txt)
-	pip-compile --allow-unsafe --strip-extras --quiet --output-file $@ $^
+constraints.txt: requirements/dev.txt
+	pilecap update
 
 dist/_envoy:
 	$(CLEAN_DIR_TARGET)

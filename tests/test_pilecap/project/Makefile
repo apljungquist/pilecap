@@ -4,7 +4,7 @@ SHELL=/bin/bash
 
 build/requirements/build.txt: pyproject.toml
 	mkdir -p $(@D)
-	pilecap build_requirements $< > $@
+	pilecap plumbing build-requirements $(<D) > $@
 
 build/requirements/global.in: constraints/global.txt build/requirements/run.txt
 	mkdir -p $(@D)
@@ -18,7 +18,7 @@ build/requirements/global.txt: build/requirements/global.in
 
 build/requirements/run.txt: pyproject.toml
 	mkdir -p $(@D)
-	pilecap run_requirements $< > $@
+	pilecap plumbing run-requirements $(<D) > $@
 
 constraints.txt: build/requirements/build.txt build/requirements/global.txt $(wildcard requirements/*.txt)
 	pip-compile --allow-unsafe --strip-extras --quiet --output-file $@ $^

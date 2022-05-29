@@ -10,6 +10,3 @@
 /src/*.egg-info/
 /venv/
 __pycache__/
-
-# tmp
-/requirements/*.txt

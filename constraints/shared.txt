@@ -1,0 +1,3 @@
+# This project does not share any version locks with other projects, but
+# one is specified anyway to exercise this use case.
+pip-tools==6.6.2
