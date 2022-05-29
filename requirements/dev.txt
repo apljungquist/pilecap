@@ -1,0 +1,21 @@
+# Development dependencies
+black
+build
+# Fail if constraints are not applied
+# When placed here it does not guard tests in tox
+# TODO: Consider moving to build-system.requires
+canaria-domestica-red
+coverage
+flake8
+isort
+lxml
+mypy[reports]
+pip
+pip-tools >=6.6.2
+pylint
+pytest >=6.2.5
+setuptools
+setuptools_scm
+tox
+twine
+wheel

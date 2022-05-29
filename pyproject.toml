@@ -1,0 +1,40 @@
+[build-system]
+requires = [
+    # 56 was too low, no package installed for some reason
+    "setuptools>=62",
+    "setuptools_scm[toml]>=6.0"
+]
+build-backend = "setuptools.build_meta"
+
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+
+[tool.mypy]
+disallow_untyped_defs = true
+
+
+[tool.pylint.MASTER]
+ignore = ["_version.py"]
+
+
+[tool.pylint.format]
+max-line-length = 88
+
+[tool.pylint.messages_control]
+disable = [
+    "missing-docstring",
+    "bad-continuation",  # for black compatibility
+]
+good-names = []
+bad-names=[]
+
+
+[tool.setuptools_scm]
+write_to = 'src/padstone/_version.py'
+
+
+[tool.tox-constraints]
+plugin_enabled = true

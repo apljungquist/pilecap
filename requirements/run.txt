@@ -1,0 +1,3 @@
+# Run time dependencies
+# TODO: Infer automatically
+more-itertools

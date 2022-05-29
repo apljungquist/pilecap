@@ -1,0 +1,68 @@
+name: Python package
+
+on: [push]
+
+jobs:
+  stable:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.10"
+      - name: Install dependencies
+        run: |
+          export PIP_CONSTRAINT=constraints.txt
+          pip install pip setuptools
+          pip install -r constraints.txt
+          pip install .
+      - name: Check format
+        run: make check_format
+      - name: Check types
+        run: make check_types
+      - name: Check lint
+        run: make check_lint
+      - name: Check docs
+        run: make check_docs
+      - name: Check dist
+        run: make check_dist
+      - name: Check tests
+        run: make check_tests
+
+  unstable:
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+        py: [3.7, "3.10"]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python ${{ matrix.py }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.py }}
+    - name: Bootstrap tox
+      run: |
+          export PIP_CONSTRAINT=constraints.txt
+          pip install pip setuptools
+          pip install tox-constraints
+    - name: Run tests in tox
+      run: tox -e py
+
+  deploy:
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    needs: [stable, unstable]
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.10"
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.pypi_password }}
+

@@ -1,0 +1,4 @@
+global-exclude *
+include LICENSE README.md setup.cfg setup.py
+graft requirements/
+graft src/

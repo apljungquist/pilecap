@@ -1,0 +1,4 @@
+# Build time dependencies
+# TODO: Infer automatically
+setuptools
+setuptools_scm

@@ -1,0 +1,9 @@
+[run]
+branch = True
+source = padstone,tests
+
+[paths]
+source =
+    src/padstone
+    .tox/*/lib/python*/site-packages/padstone
+
