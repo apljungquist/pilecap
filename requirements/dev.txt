@@ -1,6 +1,7 @@
 # Development dependencies
 black
 build
+canaria-domestica-red==1.0.1
 coverage
 flake8
 isort

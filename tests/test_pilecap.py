@@ -6,7 +6,7 @@ import textwrap
 
 import pytest
 
-from pilecap import compilation
+from pilecap import _cli, _compilation, _env
 
 _RESOURCES = pathlib.Path(__file__).with_suffix("")
 
@@ -66,12 +66,12 @@ def test_pretty():
         """\
         pip==22.1.1
             # via
-            #   -c /tmp/20220529_121935_42k_fbk6/shared.txt
-            #   -r /tmp/20220529_121935_42k_fbk6/run.in
+            #   -c /tmp/20220529_121935_42k_fbk6/shared.c.txt
+            #   -r /tmp/20220529_121935_42k_fbk6/run.r.txt
             #   pip-tools
         setuptools==62.3.2
             # via
-            #   -r /tmp/20220529_121935_42k_fbk6/dev.in
+            #   -r /tmp/20220529_121935_42k_fbk6/dev.foo.r.txt
             #   astroid
             #   pip-tools
             #   setuptools-scm
@@ -86,13 +86,15 @@ def test_pretty():
             #   pip-tools
         setuptools==62.3.2
             # via
-            #   -r dev
+            #   -r dev.foo
             #   astroid
             #   pip-tools
             #   setuptools-scm
         """
     )
-    actual = compilation._pretty(pathlib.Path("/tmp/20220529_121935_42k_fbk6/"), before)
+    actual = _compilation._pretty(
+        pathlib.Path("/tmp/20220529_121935_42k_fbk6/"), before
+    )
     assert actual == expected
 
 
@@ -119,6 +121,16 @@ def test_intersection():
             #   setuptools-scm
         """
     )
-    actual = compilation._intersection(keys_from, versions_from)
+    actual = _compilation._intersection(keys_from, versions_from)
     expected = {"setuptools": "62.3.2"}
     assert actual == expected
+
+
+def test_environment_fingerprint_is_available():
+    assert _env.fingerprint()
+
+
+def test_header_does_not_raise():
+    # pylint: disable=protected-access
+    # ... because I cannot be bothered fixing this right now.
+    _cli._header(_env.markers(), None)
