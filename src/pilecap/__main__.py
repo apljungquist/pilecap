@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import sys
 
-from pilecap import cli
+from pilecap import _cli
 
 
 def main() -> None:
-    cli.cli(sys.argv[1:])
+    _cli.cli(sys.argv[1:])

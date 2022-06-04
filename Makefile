@@ -44,37 +44,30 @@ CLEAN_DIR_TARGET = git clean -xdf $(@D); mkdir -p $(@D)
 help: ## Print this help message
 	@python -c "$$PRINT_HELP" < $(MAKEFILE_LIST)
 
-check_all: check_format check_types check_lint check_dist check_docs check_tests ## Run all checks that have not yet passed
-	rm $^
+check_all: check_format check_types check_lint check_dist check_docs check_tests; ## Run all checks that have not yet passed
 
 check_format: ## ...
 	isort --check setup.py src/ tests/
 	black --check setup.py src/ tests/
-	touch $@
 
 check_lint: ## ...
 	pylint setup.py src/ tests/
 	flake8 setup.py src/ tests/
-	touch $@
 
 # TODO: Consider moving into tox for cases where non-universal wheels are built for more than one target
 check_dist: dist/_envoy; ## Check that distribution can be built and will render correctly on PyPi
-	touch $@
 
 check_docs: ## Check that documentation can be built
-	touch $@
 
 # No coverage here to avoid race conditions?
 check_tests: ## Check that unit tests pass
 	pytest --durations=10 --doctest-modules src/pilecap tests/
-	touch $@
 
 check_types: ## ...
 	mypy \
 		--cobertura-xml-report=reports/type_coverage/ \
 		--html-report=reports/type_coverage/html/ \
 		--package pilecap
-	touch $@
 
 fix_format: ## ...
 	isort setup.py src/ tests/
@@ -86,9 +79,6 @@ fix_format: ## ...
 # * Must have no side effects on other nouns
 # * Must not have any prerequisites that are verbs
 # * Ordered first by specificity, second by name
-
-constraints.txt: requirements/dev.txt
-	pilecap update
 
 dist/_envoy:
 	$(CLEAN_DIR_TARGET)
