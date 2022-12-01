@@ -45,6 +45,7 @@ def test_make_workflow(tmp_path):
     # with the current resolver).
     expected = (_RESOURCES / _CONSTRAINTS).read_text()
     shutil.copytree(_RESOURCES / "project", wdir)
+    shutil.copy2(_RESOURCES / "constraints.txt", wdir)
 
     # Sanity check
     before = (wdir / _CONSTRAINTS).read_text()
