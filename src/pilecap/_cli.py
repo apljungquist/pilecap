@@ -132,7 +132,15 @@ def _compile(args: argparse.Namespace) -> None:
 def _build_requirements(args: argparse.Namespace) -> None:
     from . import _gathering
 
-    for dep in sorted(_gathering.build_requirements(args.project_root)):
+    if args.distributions == ["*"]:
+        distributions = _gathering.ALL_DISTRIBUTIONS
+    else:
+        distributions = args.distributions
+
+    if "*" in distributions:
+        raise RuntimeError("Got both wildcard and literal distributions")
+
+    for dep in sorted(_gathering.build_requirements(args.project_root, distributions)):
         print(dep)
 
 
@@ -181,6 +189,16 @@ def _parser() -> argparse.ArgumentParser:
         help="Print all immediate dependencies for building the package",
     )
     breqs.add_argument("project_root", type=pathlib.Path)
+    breqs.add_argument(
+        "--distributions",
+        action="append",
+        default=[],
+        help=(
+            "Include dynamic dependencies for the given distributions."
+            " May be used more than once."
+            " '*' includes dependencies for all distributions."
+        ),
+    )
     breqs.set_defaults(func=_build_requirements)
     rreqs = subplumbing.add_parser(
         "run-requirements",

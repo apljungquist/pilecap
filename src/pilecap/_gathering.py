@@ -1,13 +1,16 @@
+import itertools
 import os
 import pathlib
 import re
-from typing import Dict, List, Tuple
+from typing import Dict, Iterable, List, Tuple
 
 import build
 import pep517
 from build import util
 
 from pilecap._misc import Scope
+
+ALL_DISTRIBUTIONS = ("editable", "sdist", "wheel")
 
 
 def _remove_extras_marker(requirement: str) -> str:
@@ -28,12 +31,20 @@ def run_requirements(project_dir: pathlib.Path) -> List[str]:
     ]
 
 
-def build_requirements(project_dir: pathlib.Path) -> List[str]:
+def build_requirements(
+    project_dir: pathlib.Path, distributions: Iterable[str]
+) -> List[str]:
+    builder = build.ProjectBuilder(
+        os.fspath(project_dir),
+        runner=pep517.quiet_subprocess_runner,
+    )
     return sorted(
-        build.ProjectBuilder(
-            os.fspath(project_dir),
-            runner=pep517.quiet_subprocess_runner,
-        ).build_system_requires
+        set(
+            itertools.chain(
+                builder.build_system_requires,
+                *[builder.get_requires_for_build(dist) for dist in distributions],
+            )
+        )
     )
 
 
@@ -43,7 +54,7 @@ def _other_requirements(file: pathlib.Path) -> List[str]:
 
 def requirements(project_dir: pathlib.Path) -> Dict[str, Tuple[Scope, List[str]]]:
     result = {
-        "build": (Scope.PRIVATE, build_requirements(project_dir)),
+        "build": (Scope.PRIVATE, build_requirements(project_dir, ALL_DISTRIBUTIONS)),
         "run": (Scope.SHARED, run_requirements(project_dir)),
     }
     for file in project_dir.glob("requirements/*.txt"):
