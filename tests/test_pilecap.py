@@ -19,7 +19,7 @@ _CONSTRAINTS = "constraints.txt"
 
 @contextlib.contextmanager
 def _environ(**kwargs: Optional[str]) -> None:
-    old = {k: os.environ.get(k) for k in kwargs if k in os.environ}
+    old = {k: os.environ.get(k) for k in kwargs}
     for k, v in kwargs.items():
         if v is None:
             del os.environ[k]
@@ -35,20 +35,19 @@ def _environ(**kwargs: Optional[str]) -> None:
                 os.environ[k] = v
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass
 class _PackageIndex:
     location: pathlib.Path
+    has_been_used: bool = False
 
     @property
     def links(self) -> pathlib.Path:
         return self.location / "links"
 
     def _download(self, cmd: List[str]) -> None:
-        # TODO: Consider making _PackageIndex a contect manager instead
-        with _environ(PIP_NO_INDEX=None):
-            subprocess.check_call(
-                ["pip", "download", "--no-deps", f"--dest={self.links}"] + cmd
-            )
+        subprocess.check_call(
+            ["pip", "download", "--no-deps", f"--dest={self.links}"] + cmd
+        )
 
     def download_explicit(self, packages: Iterable[Tuple[str, str]]) -> None:
         """Download packages with specified version into index"""
@@ -61,6 +60,15 @@ class _PackageIndex:
         with _environ(PIP_CONSTRAINT=str(_cli._private_constraints_file(_REPO))):
             self._download(packages)
 
+    @contextlib.contextmanager
+    def activated(self) -> Iterator[None]:
+        self.has_been_used = True
+        with _environ(
+            PIP_FIND_LINKS=str(self.links),
+            PIP_NO_INDEX="1",
+        ):
+            yield
+
 
 # TODO: Improve isolation
 # Somehow test_make_workflow required me to install some packages such as fire but not
@@ -69,11 +77,8 @@ class _PackageIndex:
 @pytest.fixture()
 def _package_index(tmp_path) -> Iterator[_PackageIndex]:
     package_index = _PackageIndex(tmp_path / "package_index")
-    with _environ(
-        PIP_FIND_LINKS=str(package_index.links),
-        PIP_NO_INDEX="1",
-    ):
-        yield package_index
+    yield package_index
+    assert package_index.has_been_used
 
 
 # The package does not matter as long as it
@@ -88,10 +93,11 @@ def _install_canary() -> None:
 
 
 # Sanity check for the package index isolation
-def test_pip_install_fails_with_empty_index(_package_index):
-    _uninstall_canary()
-    with pytest.raises(Exception):
-        _install_canary()
+def test_pip_install_fails_with_empty_index(_package_index: _PackageIndex):
+    with _package_index.activated():
+        _uninstall_canary()
+        with pytest.raises(Exception):
+            _install_canary()
 
 
 # Sanity check for the package index isolation
@@ -99,8 +105,9 @@ def test_pip_install_succeeds_with_populated_index(
     _package_index: _PackageIndex,
 ) -> None:
     _package_index.download_implicit(["canaria-domestica-red"])
-    _uninstall_canary()
-    _install_canary()
+    with _package_index.activated():
+        _uninstall_canary()
+        _install_canary()
 
 
 def _package_versions(text: str) -> Dict[str, str]:
@@ -163,7 +170,8 @@ def test_make_workflow(_package_index: _PackageIndex, tmp_path):
     # touching pyproject.toml in the same instance as we copied all the files.
     check_call(["touch", "constraints.txt"])
     check_call(["touch", "pyproject.toml"])
-    check_call(["make", _CONSTRAINTS])
+    with _package_index.activated():
+        check_call(["make", _CONSTRAINTS])
 
     after = _package_versions((wdir / _CONSTRAINTS).read_text())
     assert after == expected
